@@ -9,6 +9,7 @@ const gravity = 0.5;
 
 class Player {
     constructor() {
+        this.speed = 10
         this.position = {
             x: 100,
             y: 100
@@ -36,14 +37,14 @@ class Player {
         if (this.position.y + this.height + this.velocity.y <= canvas.height) {
             this.velocity.y += gravity
         } else {
-            this.velocity.y = 0
+            // this.velocity.y = 0
         }
         
     }
 }
 
 class Platform {
-    constructor({x, y, width, height, image}) {
+    constructor({x, y, image}) {
         this.position = {
             x: x,
             y: y
@@ -59,15 +60,30 @@ class Platform {
     }
 }
 
-const image = new Image()
-image.src = "assets/Ground/Grass/grassLong.png"
+class GenericObject {
+    constructor({x, y, image}) {
+        this.position = {
+            x: x,
+            y: y
+        }
 
-const player = new Player()
-const platforms = [new Platform({x: 0, y: 465, image: image}), new Platform({x: image.width, y: 465, image: image})]
-// new Platform({x: 500, y:200, image: image}
+        this.image = image;
+        this.width = image.width
+        this.height = image.height
+    }
+
+    draw() {
+        c.drawImage(this.image, this.position.x, this.position.y)
+    }
+}
+
+function createImage(imageSrc) {
+    const image = new Image()
+    image.src = imageSrc
+    return image
+}
 
 
-player.update()
 const keys = {
     right: {
         pressed: false
@@ -78,10 +94,52 @@ const keys = {
 
 let scrollOffset = 0
 
+
+let longPlatformImage = createImage("assets/Ground/Grass/grassLong.png")
+let platformImage = createImage("assets/Ground/Grass/grass.png")
+
+let player = new Player()
+let platforms = []
+
+
+let backgroundImage = createImage("assets/Backgrounds/2d-backgrounds/summer/Summer3.png")
+
+let genericObjects = []
+
+
+function init() {
+    longPlatformImage = createImage("assets/Ground/Grass/grassLong.png")
+    platformImage = createImage("assets/Ground/Grass/grass.png")
+
+    player = new Player()
+    platforms = [
+        new Platform({x: 0, y: 465, image: longPlatformImage}),
+        new Platform({x: longPlatformImage.width, y: 465, image: longPlatformImage}),
+        new Platform({x: longPlatformImage.width * 2 + 300, y: 465, image: longPlatformImage}),
+        new Platform({x: longPlatformImage.width * 3 + 300, y: 465, image: longPlatformImage}),
+
+        new Platform({x: platformImage.width* 3, y: 465, image: platformImage}),
+    ]
+    // new Platform({x: 500, y:200, image: image}
+
+
+    backgroundImage = createImage("assets/Backgrounds/2d-backgrounds/summer/Summer3.png")
+
+    genericObjects = [
+        new GenericObject({x: 0, y: 0, image: backgroundImage})
+    ]
+}
+
+
+
 function animate() {
     requestAnimationFrame(animate)
     c.fillStyle = "white"
     c.fillRect(0, 0, canvas.width, canvas.height)
+
+    genericObjects.forEach((genericObject => {
+        genericObject.draw()
+    }))
 
     platforms.forEach((platform) => {
         platform.draw()
@@ -89,24 +147,33 @@ function animate() {
 
     player.update()
 
-    if (keys.right.pressed && player.position.x < canvas.width / 2 + player.width) {
-        player.velocity.x = 5
+    if (keys.right.pressed && player.position.x < canvas.width / 2 - player.width) {
+        player.velocity.x = player.speed
 
     } else if (keys.left.pressed && player.position.x > 100) {
-        player.velocity.x = -5
+        player.velocity.x = -player.speed
     } else {
         player.velocity.x = 0
 
         if (keys.right.pressed) {
-            scrollOffset += 5
+            scrollOffset += player.speed
+
             platforms.forEach((platform) => {
-                platform.position.x -= 5
+                platform.position.x -= player.speed
+            })
+            genericObjects.forEach((genericObject) => {
+                genericObject.position.x -= player.speed * 0.1
             })
         } else if (keys.left.pressed) {
-            scrollOffset -= 5
+            scrollOffset -= player.speed
+
             platforms.forEach((platform) => {
-                platform.position.x += 5
+                platform.position.x += player.speed
             })
+            genericObjects.forEach((genericObject) => {
+                genericObject.position.x += player.speed * 0.1
+            })
+            
         }
     }
 
@@ -121,11 +188,18 @@ function animate() {
         }
     })
 
+    // Win condition
     if (scrollOffset > 2000) {
         console.log("You won");
     }
+
+    // Lose condition
+    if (player.position.y > canvas.height + player.height) {
+        init()
+    }
 }
 
+init()
 animate()
 
 window.addEventListener("keydown", (event) => {
