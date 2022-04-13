@@ -19,8 +19,8 @@ class Player {
             y: 0
         }
 
-        this.width = 80
-        this.height = 80
+        this.width = 50
+        this.height = 50
     }
 
     draw() {
@@ -109,7 +109,7 @@ let genericObjects = []
 
 function init() {
     longPlatformImage = createImage("assets/Ground/Grass/grassLong.png")
-    platformImage = createImage("assets/Ground/Grass/grass.png")
+    platformImage = createImage("assets/Ground/Grass/grassHalf_mid.png")
 
     player = new Player()
     platforms = [
@@ -117,8 +117,9 @@ function init() {
         new Platform({x: longPlatformImage.width, y: 465, image: longPlatformImage}),
         new Platform({x: longPlatformImage.width * 2 + 300, y: 465, image: longPlatformImage}),
         new Platform({x: longPlatformImage.width * 3 + 300, y: 465, image: longPlatformImage}),
+        new Platform({x: longPlatformImage.width * 4 + 1000, y: 465, image: longPlatformImage}),
 
-        new Platform({x: platformImage.width* 3, y: 465, image: platformImage}),
+        new Platform({x: longPlatformImage.width * 4 + 580, y: 300, image: platformImage}),
     ]
     // new Platform({x: 500, y:200, image: image}
 
@@ -206,18 +207,14 @@ window.addEventListener("keydown", (event) => {
 
     switch (event.key) {
         case "a":
-            console.log("left");
             keys.left.pressed = true
             break
         case "s":
-            console.log("down");
             break
         case "d":
-            console.log("right");
             keys.right.pressed = true
             break
         case "w":
-            console.log("up");
             player.velocity.y -= 15;
             break
         
@@ -228,18 +225,14 @@ window.addEventListener("keyup", (event) => {
 
     switch (event.key) {
         case "a":
-            console.log("left");
             keys.left.pressed = false
             break
         case "s":
-            console.log("down");
             break
         case "d":
-            console.log("right");
             keys.right.pressed = false
             break
         case "w":
-            console.log("up");
             break
         
     }
